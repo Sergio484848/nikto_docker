@@ -1,20 +1,17 @@
-FROM alpine:3.5
 
-ENV VERSION_NIKTO 2.1.5
-
-RUN apk --update add perl openssl perl-net-ssleay && rm -f /var/cache/apk/* && \
-    mkdir /opt && cd /opt && wget "https://cirt.net/nikto/nikto-$VERSION_NIKTO.tar.bz2" && \
-    tar xvjf nikto-$VERSION_NIKTO.tar.bz2 && rm -f nikto-$VERSION_NIKTO.tar.bz2 && \
-    ln -sf nikto-$VERSION_NIKTO nikto && cd nikto-$VERSION_NIKTO && \
-    chmod 755 /opt/nikto/nikto.pl && /opt/nikto/nikto.pl -update && \
-    mkdir /work && \
-    adduser -D -s /bin/sh user user && chown -R user /work
-
-USER user
-
-VOLUME /work
-WORKDIR /opt/nikto
-
-ENTRYPOINT ["/opt/nikto/nikto.pl"]
-
-CMD ["-h"]
+FROM kalilinux/kali-bleeding-edge
+WORKDIR /app
+RUN apt update && apt install -y nikto && echo "Nikto Installation Complete ! "
+# RUN apt install -y nikto && echo "Nikto Installation Complete ! "
+RUN apt update && apt install -y curl gnupg
+# RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - \
+#     && apt-get install -y nodejs
+# COPY package*.json ./
+# RUN echo "hello"
+# COPY nikto.js /app
+# CMD ["nikto.js"]
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
+COPY . .
+ENTRYPOINT [ "node" ]
+CMD [ "nikto.js" ]
